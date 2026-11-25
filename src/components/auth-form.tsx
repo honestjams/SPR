@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/button";
+import { signInWithUsername } from "@/app/(auth)/login/actions";
 
 const input =
   "min-h-13 w-full rounded-2xl border border-border bg-surface px-4 text-base outline-none focus:border-text transition-colors";
@@ -23,11 +24,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setBusy(true);
     setError(null);
     const form = new FormData(e.currentTarget);
-    const email = String(form.get("email"));
     const password = String(form.get("password"));
     const supabase = createClient();
 
     if (mode === "signup") {
+      const email = String(form.get("email"));
       const username = String(form.get("username"));
       if (!/^[A-Za-z0-9_]{3,20}$/.test(username)) {
         setError("Username: 3–20 letters, numbers or underscores.");
@@ -48,9 +49,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Sign in with either. Emails go straight to Supabase from the browser;
+    // usernames go through a server action so emails are never exposed.
+    const identifier = String(form.get("identifier")).trim();
+    const result = identifier.includes("@")
+      ? await supabase.auth
+          .signInWithPassword({ email: identifier, password })
+          .then(({ error }) => (error ? { ok: false as const, error: error.message } : { ok: true as const }))
+      : await signInWithUsername(identifier, password);
     setBusy(false);
-    if (error) return setError(error.message);
+    if (!result.ok) return setError(result.error);
     router.replace(next);
     router.refresh();
   }
@@ -82,7 +90,12 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <input name="username" required placeholder="Username" autoComplete="username"
           minLength={3} maxLength={20} className={input} />
       )}
-      <input name="email" type="email" required placeholder="Email" autoComplete="email" className={input} />
+      {mode === "signup" ? (
+        <input name="email" type="email" required placeholder="Email" autoComplete="email" className={input} />
+      ) : (
+        <input name="identifier" type="text" required placeholder="Email or username" autoComplete="username"
+          autoCapitalize="none" autoCorrect="off" spellCheck={false} className={input} />
+      )}
       <input name="password" type="password" required minLength={8} placeholder="Password"
         autoComplete={mode === "signup" ? "new-password" : "current-password"} className={input} />
 

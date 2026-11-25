@@ -131,6 +131,7 @@ export type Database = {
       join_queue: { Args: { p_mode: GameMode; p_stake?: number }; Returns: Json }
       leave_queue: { Args: never; Returns: undefined }
       poll_queue: { Args: never; Returns: Json }
+      resolve_login_email: { Args: { p_identifier: string; p_token: string }; Returns: string | null }
       submit_move: { Args: { p_match: string; p_move: MoveEnum }; Returns: Json }
       tick_match: { Args: { p_match: string }; Returns: Json }
       vote_rematch: { Args: { p_accept: boolean; p_match: string }; Returns: Json }

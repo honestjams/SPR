@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- plain Node CommonJS script */
 /**
  * Two-player end-to-end test: matchmaking, best-of-3, reveal, Elo/chips, double-or-nothing,
  * timeouts, rematch decline, leaderboard, profile and friend challenges.
@@ -13,11 +14,11 @@ const SHOTS = process.argv[2] ?? "tests/e2e/screenshots";
 require("fs").mkdirSync(SHOTS, { recursive: true });
 const log = (...a) => console.log(new Date().toISOString().slice(11, 23), ...a);
 
-async function login(ctx, email) {
+async function login(ctx, identifier) {
   const page = await ctx.newPage();
-  page.on("pageerror", (e) => log("PAGEERROR", email, e.message));
+  page.on("pageerror", (e) => log("PAGEERROR", identifier, e.message));
   await page.goto(`${BASE}/login`);
-  await page.fill('input[name="email"]', email);
+  await page.fill('input[name="identifier"]', identifier);
   await page.fill('input[name="password"]', "TestPass!2345");
   await page.click('button[type="submit"]');
   await page.waitForURL("**/play", { timeout: 15000 });
@@ -37,9 +38,21 @@ async function throwMove(page, label) {
   );
   const mk = (scheme) => browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, colorScheme: scheme });
   const ctxA = await mk("dark"), ctxB = await mk("light");
-  const A = await login(ctxA, "spr-e2e-a@example.test");
-  const B = await login(ctxB, "spr-e2e-b@example.test");
-  log("both logged in");
+  // Bad credentials must give the same generic error (no username probing).
+  const probe = await ctxA.newPage();
+  for (const [id, pw] of [["no_such_user_xyz", "TestPass!2345"], ["e2e_alpha", "wrong-password"]]) {
+    await probe.goto(`${BASE}/login`);
+    await probe.fill('input[name="identifier"]', id);
+    await probe.fill('input[name="password"]', pw);
+    await probe.click('button[type="submit"]');
+    await probe.getByText("Invalid login credentials").waitFor({ timeout: 10000 });
+  }
+  await probe.close();
+  log("bad username / bad password → same generic error ✓");
+
+  const A = await login(ctxA, "E2E_Alpha"); // username, case-insensitive
+  const B = await login(ctxB, "spr-e2e-b@example.test"); // email
+  log("A logged in by username, B by email ✓");
   await A.waitForTimeout(800);
   await A.screenshot({ path: `${SHOTS}/1-lobby-dark.png` });
   await B.screenshot({ path: `${SHOTS}/1-lobby-light.png` });
