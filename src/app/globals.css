@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   SPR design tokens. Light is the base; dark applies via OS preference
+   unless the user picked a theme (data-theme on <html>).
+   ------------------------------------------------------------------ */
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --surface-2: #f1f1ec;
+  --border: #e4e4dd;
+  --text: #111113;
+  --muted: #6b6b78;
+  --rock: #e8701f;
+  --paper: #1f8ce8;
+  --scissors: #8f4fe8;
+  --win: #1faf72;
+  --loss: #e5334a;
+  --tier-bronze: #b0703a;
+  --tier-silver: #8c96a3;
+  --tier-gold: #d4a017;
+  --tier-platinum: #3fb8b0;
+  --tier-diamond: #4f8ff7;
+  --tier-champion: #e5334a;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0b0f;
+    --surface: #17171e;
+    --surface-2: #202029;
+    --border: #2a2a35;
+    --text: #f4f4f5;
+    --muted: #8a8a99;
+    --rock: #ff8a3d;
+    --paper: #3da9ff;
+    --scissors: #b57bff;
+    --win: #3ddc97;
+    --loss: #ff4d5e;
+    --tier-silver: #b4bcc7;
+    --tier-gold: #f5c542;
+    --tier-platinum: #5fd8cf;
+    --tier-diamond: #78aaff;
+    --tier-champion: #ff4d5e;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0b0f;
+  --surface: #17171e;
+  --surface-2: #202029;
+  --border: #2a2a35;
+  --text: #f4f4f5;
+  --muted: #8a8a99;
+  --rock: #ff8a3d;
+  --paper: #3da9ff;
+  --scissors: #b57bff;
+  --win: #3ddc97;
+  --loss: #ff4d5e;
+  --tier-silver: #b4bcc7;
+  --tier-gold: #f5c542;
+  --tier-platinum: #5fd8cf;
+  --tier-diamond: #78aaff;
+  --tier-champion: #ff4d5e;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-rock: var(--rock);
+  --color-paper: var(--paper);
+  --color-scissors: var(--scissors);
+  --color-win: var(--win);
+  --color-loss: var(--loss);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  overscroll-behavior-y: none;
+}
+
+/* Tabular digits for timers, Elo and chips so numbers never jitter. */
+.num {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.pt-safe { padding-top: max(env(safe-area-inset-top), 0px); }
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
