@@ -125,8 +125,9 @@ async function throwMove(page, label) {
   await B.getByRole("button", { name: "Accept" }).click();
   await Promise.all([A.waitForURL("**/match/**", { timeout: 8000 }), B.waitForURL("**/match/**", { timeout: 8000 })]);
   log("friend challenge → match ✓", A.url() === B.url() ? "same ✓" : "✗");
-  await A.getByText("Match found").waitFor();
-  await A.screenshot({ path: `${SHOTS}/10-intro.png` });
+  // On a slow connection the 3s intro may already be over by the time the page loads.
+  await A.locator("text=/Match found|Throw 1/").first().waitFor({ timeout: 10000 });
+  await A.screenshot({ path: `${SHOTS}/10-match-start.png` });
 
   await browser.close();
   log("ALL E2E CHECKS PASSED");

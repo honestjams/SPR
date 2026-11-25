@@ -3,6 +3,8 @@
 Competitive, real-time Scissors Paper Rock. Best of 3, Elo matchmaking, ranked tiers,
 friend challenges and double-or-nothing rematches.
 
+**Live:** https://sprletsgo.vercel.app
+
 > **v1 uses free virtual chips.** Every chip movement goes through an append-only
 > ledger (`chip_ledger`) so a crypto wallet can replace chips later without touching
 > game logic. Get legal advice before enabling real-value stakes (see *Roadmap*).
@@ -66,6 +68,18 @@ npm run dev
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` (safe for the browser) |
 
 Keyboard shortcuts in a match: `1`/`R` rock · `2`/`P` paper · `3`/`S` scissors.
+
+## Deployment config
+
+| Where | Setting |
+|---|---|
+| Vercel project `sprletsgo` | Framework pinned to Next.js in `vercel.json`; functions in `syd1`; both `NEXT_PUBLIC_SUPABASE_*` vars set for Production, Preview and Development |
+| Supabase → Auth → URL Configuration | Site URL `https://sprletsgo.vercel.app`; redirect allow-list: `https://sprletsgo.vercel.app/**`, `https://sprletsgo-*-josh-evans-projects-7b18a71f.vercel.app/**` (previews), `http://localhost:3000/**` |
+
+If you add a custom domain, add it to **both** Vercel Domains and the Supabase redirect
+allow-list (and make it the Site URL), or sign-up confirmation links will break.
+
+`NEXT_PUBLIC_*` variables are inlined at build time: after changing one in Vercel, redeploy.
 
 ## Branching workflow
 
